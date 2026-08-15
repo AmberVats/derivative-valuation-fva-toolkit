@@ -4,7 +4,7 @@ and Fair Value Adjustment audit reporting.
 """
 
 import argparse
-import sys
+import os
 from tabulate import tabulate
 
 from src.instruments.base import OptionType
@@ -16,9 +16,13 @@ from src.market.market_data import MarketData
 from src.market.bootstrap import DepositQuote, SwapQuote, YieldCurveBootstrapper
 from src.portfolio.portfolio import Portfolio
 from src.adjustments.audit import AuditTrailManager
+from src.report.html_report import HTMLReportGenerator
 
 
-def run_full_valuation_demo(export_json_path: str = None) -> None:
+def run_full_valuation_demo(
+    export_json_path: str = None,
+    html_report_path: str = "reports/valuation_report.html",
+) -> None:
     """Runs a complete end-to-end derivative valuation and FVA workflow."""
     print("=" * 80)
     print("  DERIVATIVE VALUATION & FAIR VALUE ADJUSTMENT (XVA) TOOLKIT")
@@ -147,6 +151,11 @@ def run_full_valuation_demo(export_json_path: str = None) -> None:
         audit_manager.export_json(export_json_path)
         print(f"\n[Audit] Saved full JSON audit logs to: {export_json_path}")
 
+    # 6. Generate Standalone HTML Report
+    html_gen = HTMLReportGenerator()
+    html_gen.generate_report(summary, output_filepath=html_report_path)
+    print(f"\n[Report] Generated standalone interactive HTML report at: {html_report_path}")
+
     print("\n" + "=" * 80)
     print("  Valuation & Fair Value Adjustment pipeline completed successfully!")
     print("=" * 80)
@@ -158,9 +167,18 @@ def main() -> None:
     )
     parser.add_argument("--demo", action="store_true", help="Run full valuation demo")
     parser.add_argument("--audit-json", type=str, help="Path to export audit JSON")
+    parser.add_argument(
+        "--html-report",
+        type=str,
+        default="reports/valuation_report.html",
+        help="Path to generate standalone HTML report",
+    )
     args = parser.parse_args()
 
-    run_full_valuation_demo(export_json_path=args.audit_json)
+    run_full_valuation_demo(
+        export_json_path=args.audit_json,
+        html_report_path=args.html_report,
+    )
 
 
 if __name__ == "__main__":
