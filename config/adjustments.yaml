@@ -1,0 +1,48 @@
+# Fair Value Adjustment (XVA & Reserves) Methodology Configuration
+# Product Control Analytics - Model Governance & Parameters
+
+version: "1.0.0"
+governance:
+  owner: "Product Control Analytics & Quantitative Valuation Team"
+  as_of_standard: "EOD_CLOSE"
+  audit_hashing: "SHA-256"
+
+adjustments:
+  bid_offer:
+    enabled: true
+    methodology_version: "1.0.0"
+    description: "Prudent Valuation closeout reserve on net portfolio market risk exposures"
+    default_spread_bps: 10.0
+    asset_spreads_bps:
+      EQUITY_LARGE_CAP: 5.0
+      EQUITY_MID_CAP: 15.0
+      FX_G10: 2.0
+      FX_EM: 12.0
+      RATES_USD: 1.0
+      RATES_EUR: 1.5
+
+  fva:
+    enabled: true
+    methodology_version: "1.2.0"
+    description: "Expected lifetime funding cost of uncollateralised positive exposures"
+    time_steps: 12
+    default_funding_spread_bps: 45.0
+    funding_curve_spreads_bps:
+      USD: 45.0
+      EUR: 40.0
+      GBP: 50.0
+
+  cva:
+    enabled: true
+    methodology_version: "2.0.0"
+    description: "Counterparty credit risk reserve with intensity hazard rate default model"
+    time_steps: 12
+    default_cds_spread_bps: 120.0
+    default_recovery_rate: 0.40
+    loss_given_default: 0.60
+    counterparty_ratings_cds_bps:
+      AAA: 25.0
+      AA: 45.0
+      A: 80.0
+      BBB: 150.0
+      BB: 350.0

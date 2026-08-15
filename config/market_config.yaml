@@ -1,0 +1,25 @@
+# Market Conventions & Yield Curve Calibration Settings
+# Product Control Analytics
+
+market_conventions:
+  base_currency: "USD"
+  day_count_conventions:
+    money_market: "ACT/360"
+    bonds: "ACT/ACT"
+    swaps_fixed: "30/360"
+    swaps_float: "ACT/360"
+  settlement_days: 2
+
+curves:
+  USD_SOFR:
+    type: "OIS_DISCOUNT"
+    interpolation: "LOG_LINEAR_DISCOUNT"
+    deposit_tenors_years: [0.0833, 0.25, 0.50, 1.00]
+    swap_tenors_years: [2.0, 3.0, 4.0, 5.0, 7.0, 10.0, 15.0, 20.0, 30.0]
+    fixed_payment_frequency: 2.0  # semiannual
+
+default_volatilities:
+  EQUITY_INDEX: 0.18
+  EQUITY_SINGLE_STOCK: 0.28
+  FX_G10: 0.08
+  FX_EM: 0.15
