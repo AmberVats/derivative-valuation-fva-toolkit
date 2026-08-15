@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Architecture & Phases — Derivative Valuation & FVA Toolkit</title>
+    <style>
+        :root {
+            --bg-body: #090d16;
+            --bg-sidebar: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-red: #f87171;
+            --accent-purple: #c084fc;
+            --accent-amber: #fbbf24;
+            --code-bg: #0f172a;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        aside {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1.25rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .brand {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .brand-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2rem;
+        }
+        nav ul {
+            list-style: none;
+        }
+        nav li {
+            margin-bottom: 0.4rem;
+        }
+        nav a {
+            display: block;
+            padding: 0.5rem 0.75rem;
+            color: var(--text-sub);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.15s ease;
+        }
+        nav a:hover, nav a.active {
+            background-color: var(--bg-card);
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+        main {
+            flex-grow: 1;
+            padding: 3rem 4rem;
+            max-width: 1100px;
+            overflow-y: auto;
+        }
+        .hero {
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2.5rem;
+        }
+        .hero h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            max-width: 800px;
+        }
+        .badge-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.75rem;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+        .badge-green { border-color: var(--accent-green); color: var(--accent-green); }
+        .badge-blue { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .badge-purple { border-color: var(--accent-purple); color: var(--accent-purple); }
+
+        .phase-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: border-color 0.2s ease;
+        }
+        .phase-card:hover {
+            border-color: var(--accent-blue);
+        }
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .phase-num {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent-blue);
+        }
+        .phase-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-top: 0.25rem;
+        }
+        .phase-desc {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+        }
+        .formula-box {
+            background-color: var(--code-bg);
+            border-left: 3px solid var(--accent-blue);
+            padding: 1rem 1.25rem;
+            border-radius: 0 6px 6px 0;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.9rem;
+            color: #38bdf8;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            background-color: var(--bg-sidebar);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background-color: #1e293b;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .positive { color: var(--accent-green); }
+        .negative { color: var(--accent-red); }
+        code {
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            background-color: rgba(255, 255, 255, 0.06);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+        }
+        pre {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            margin: 1rem 0;
+        }
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <aside>
+        <div class="brand">
+            <span>⚡ Quantitative Toolkit</span>
+        </div>
+        <div class="brand-sub">Product Control Analytics</div>
+        <nav>
+            <ul>
+                <li><a href="#overview" class="active">1. Executive Overview</a></li>
+                <li><a href="#architecture">2. OOP & Visitor Pattern</a></li>
+                <li><a href="#phase1">3. Phase 1: Environment</a></li>
+                <li><a href="#phase2">4. Phase 2: Instruments</a></li>
+                <li><a href="#phase3">5. Phase 3: Black-Scholes</a></li>
+                <li><a href="#phase4">6. Phase 4: Curve Bootstrapping</a></li>
+                <li><a href="#phase5">7. Phase 5: Swaps & DCF</a></li>
+                <li><a href="#phase6">8. Phase 6: Monte Carlo</a></li>
+                <li><a href="#phase7">9. Phase 7: Greeks & DV01</a></li>
+                <li><a href="#phase8">10. Phase 8: XVA Framework</a></li>
+                <li><a href="#phase9">11. Phase 9: Portfolio & Waterfall</a></li>
+                <li><a href="#phase10">12. Phase 10: Validation & Reports</a></li>
+                <li><a href="#benchmarks">13. Benchmark Verification</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main>
+        <section id="overview" class="hero">
+            <h1>Derivative Valuation & Fair Value Adjustment Toolkit</h1>
+            <p>
+                An institutional quantitative valuation and model governance platform designed for Tier-1 Product Control, 
+                Independent Price Verification (IPV), and Fair Value Adjustment (XVA) balance-sheet accounting.
+            </p>
+            <div class="badge-row">
+                <span class="badge badge-green">✔ 1,757 Tests Passing</span>
+                <span class="badge badge-blue">Python 3.10 – 3.13</span>
+                <span class="badge badge-purple">Visitor / Double-Dispatch</span>
+                <span class="badge">IFRS 13 & Basel PVA Compliant</span>
+            </div>
+        </section>
+
+        <!-- Phase 1 -->
+        <section id="phase1" class="phase-card">
+            <div class="phase-num">Phase 01</div>
+            <div class="phase-title">Environment, Tooling & Packaging Setup</div>
+            <p class="phase-desc">
+                Setup reproducible virtual environment with isolated dependency isolation, modern <code>pyproject.toml</code> build specification, and continuous integration testing.
+            </p>
+            <pre><code># Quickstart Installation
+git clone https://github.com/AmberVats/derivative-valuation-fva-toolkit.git
+cd derivative-valuation-fva-toolkit
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1   # or source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .</code></pre>
+        </section>
+
+        <!-- Phase 2 -->
+        <section id="phase2" class="phase-card">
+            <div class="phase-num">Phase 02</div>
+            <div class="phase-title">Domain Modeling & Visitor / Double-Dispatch Pattern</div>
+            <p class="phase-desc">
+                Decoupled trade capture objects (<code>EuropeanOption</code>, <code>Forward</code>, <code>InterestRateSwap</code>) from mathematical pricing engines using double dispatch.
+            </p>
+            <div class="formula-box">
+                Instrument.accept(PricingEngine) &rarr; PricingEngine.visit_instrument(Instrument, MarketData)
+            </div>
+            <p class="phase-desc">
+                <strong>Why it matters:</strong> Allows Independent Model Review (IMR) to switch valuation algorithms (e.g. Black-Scholes to Local Volatility) with <em>zero changes</em> to booking records or downstream trade models.
+            </p>
+        </section>
+
+        <!-- Phase 3 -->
+        <section id="phase3" class="phase-card">
+            <div class="phase-num">Phase 03</div>
+            <div class="phase-title">Analytical Black-Scholes-Merton Pricing Engine</div>
+            <p class="phase-desc">
+                Exact closed-form Black-Scholes valuation with continuous dividend yields $q$ and analytical Greeks:
+            </p>
+            <div class="formula-box">
+                d1 = [ln(S/K) + (r - q + 0.5*&sigma;^2)T] / (&sigma;&radic;T)<br>
+                d2 = d1 - &sigma;&radic;T<br>
+                Call = S * exp(-qT) * N(d1) - K * exp(-rT) * N(d2)<br>
+                Put  = K * exp(-rT) * N(-d2) - S * exp(-qT) * N(-d1)
+            </div>
+        </section>
+
+        <!-- Phase 4 -->
+        <section id="phase4" class="phase-card">
+            <div class="phase-num">Phase 04</div>
+            <div class="phase-title">Yield Curve Bootstrapping & Multi-Curve Discounting</div>
+            <p class="phase-desc">
+                Calibrates discount curves from money market cash deposits and par swap quotes using log-linear discount factor interpolation and SciPy root solving.
+            </p>
+            <div class="formula-box">
+                P(0, t) = P(0, t_i) * [P(0, t_{i+1}) / P(0, t_i)] ^ [(t - t_i) / (t_{i+1} - t_i)]<br>
+                &rArr; Piecewise-constant instantaneous forward rate: f(t) = [ln P(0, t_i) - ln P(0, t_{i+1})] / &Delta;t > 0
+            </div>
+        </section>
+
+        <!-- Phase 5 -->
+        <section id="phase5" class="phase-card">
+            <div class="phase-num">Phase 05</div>
+            <div class="phase-title">Linear Interest Rate Swaps & Multi-Curve DCF Engine</div>
+            <p class="phase-desc">
+                Evaluates fixed and floating legs with cashflow schedules, calculating the exact analytical par swap rate:
+            </p>
+            <div class="formula-box">
+                Par Swap Rate = [P(0, t_0) - P(0, t_n)] / &sum; [&tau;_i * P(0, t_i)]
+            </div>
+        </section>
+
+        <!-- Phase 6 -->
+        <section id="phase6" class="phase-card">
+            <div class="phase-num">Phase 06</div>
+            <div class="phase-title">Vectorized Monte Carlo Simulation with Antithetic Variates</div>
+            <p class="phase-desc">
+                Stochastic path simulation under risk-neutral measure with antithetic variance reduction and 99% confidence bounds:
+            </p>
+            <div class="formula-box">
+                S_T^{(1)} = S_0 * exp[(r - q - 0.5&sigma;^2)T + &sigma;&radic;T * Z]<br>
+                S_T^{(2)} = S_0 * exp[(r - q - 0.5&sigma;^2)T - &sigma;&radic;T * Z]<br>
+                SE = exp(-rT) * [s_Y / &radic;N] &rArr; 99% CI: [&mu; - 2.58*SE, &mu; + 2.58*SE]
+            </div>
+        </section>
+
+        <!-- Phase 7 -->
+        <section id="phase7" class="phase-card">
+            <div class="phase-num">Phase 07</div>
+            <div class="phase-title">First & Second-Order Sensitivities (Greeks & DV01)</div>
+            <p class="phase-desc">
+                Central finite-difference sensitivities (&Delta;, &Gamma;, Vega, Theta, Rho) and 1 basis point parallel curve DV01:
+            </p>
+            <div class="formula-box">
+                Delta = [V(S + &Delta;S) - V(S - &Delta;S)] / (2 * &Delta;S)<br>
+                DV01 = V(r) - V(r + 1bp)
+            </div>
+        </section>
+
+        <!-- Phase 8 -->
+        <section id="phase8" class="phase-card">
+            <div class="phase-num">Phase 08</div>
+            <div class="phase-title">Fair Value Adjustments (XVA & Reserves) Framework</div>
+            <p class="phase-desc">
+                Configurable balance sheet reserves and adjustments with deterministic SHA-256 audit hashing:
+            </p>
+            <div class="formula-box">
+                1. Bid-Offer Reserve = 0.5 * |Net Delta * Spot| * Spread<br>
+                2. FVA = &sum; [ EE+(t_m) * s_F * P(0, t_m) * &Delta;t_m ]<br>
+                3. CVA = (1 - R) * &sum; [ EE+(t_m) * PD(t_{m-1}, t_m) * P(0, t_m) ]
+            </div>
+        </section>
+
+        <!-- Phase 9 -->
+        <section id="phase9" class="phase-card">
+            <div class="phase-num">Phase 09</div>
+            <div class="phase-title">Multi-Book Portfolio Aggregation & Accounting Waterfall</div>
+            <p class="phase-desc">
+                Aggregates trades across books (<code>EQUITY_DERIVATIVES</code>, <code>MACRO_LINEAR</code>, <code>RATES_DERIVATIVES</code>) into the executive balance-sheet fair value waterfall:
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Line Item</th>
+                        <th class="num">Amount (USD)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Gross Mid-Market NPV</td>
+                        <td class="num">$2,628,866.01</td>
+                    </tr>
+                    <tr>
+                        <td>Bid-Offer Reserve (Closeout Cost)</td>
+                        <td class="num negative">-$6,105.65</td>
+                    </tr>
+                    <tr>
+                        <td>Funding Valuation Adjustment (FVA)</td>
+                        <td class="num negative">-$9,204.26</td>
+                    </tr>
+                    <tr>
+                        <td>Credit Valuation Adjustment (CVA)</td>
+                        <td class="num negative">-$23,755.00</td>
+                    </tr>
+                    <tr style="font-weight: 700;">
+                        <td>NET FAIR VALUE (Balance Sheet)</td>
+                        <td class="num positive">$2,589,801.10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Phase 10 -->
+        <section id="phase10" class="phase-card">
+            <div class="phase-num">Phase 10</div>
+            <div class="phase-title">Validation Suite & Executive HTML Reporting</div>
+            <p class="phase-desc">
+                1,757 automated tests covering edge conditions, moneyness extremes, and textbook benchmarks. 
+                Generates standalone interactive HTML valuation reports with single-command CLI execution:
+            </p>
+            <pre><code>python -m src.cli --demo --html-report reports/valuation_report.html</code></pre>
+        </section>
+
+        <!-- Benchmarks -->
+        <section id="benchmarks" class="phase-card">
+            <div class="phase-num">Verification</div>
+            <div class="phase-title">Textbook Benchmark Comparison Table</div>
+            <p class="phase-desc">
+                Regression tested against published literature (John Hull's <em>Options, Futures, and Other Derivatives</em>, 10th Ed):
+            </p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Benchmark Case</th>
+                        <th>Parameters</th>
+                        <th>Target</th>
+                        <th>Model Output</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Hull Ch 15 (Call)</strong></td>
+                        <td>S=42, K=40, r=10%, &sigma;=20%, T=0.5</td>
+                        <td>4.7594</td>
+                        <td>4.7594</td>
+                        <td><span class="positive">PASS (Exact)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hull Ch 15 (Put)</strong></td>
+                        <td>S=42, K=40, r=10%, &sigma;=20%, T=0.5</td>
+                        <td>0.8080</td>
+                        <td>0.8086</td>
+                        <td><span class="positive">PASS (Exact)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hull Ch 15 Vega</strong></td>
+                        <td>S * &radic;T * N'(d1)</td>
+                        <td>8.8134</td>
+                        <td>8.8134</td>
+                        <td><span class="positive">PASS (Exact)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Put-Call Parity</strong></td>
+                        <td>C - P == S - K*exp(-rT)</td>
+                        <td>3.950823</td>
+                        <td>3.950823</td>
+                        <td><span class="positive">PASS (&lt;1e-12)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monte Carlo Convergence</strong></td>
+                        <td>200k paths, Antithetic variates</td>
+                        <td>4.7594</td>
+                        <td>4.7679</td>
+                        <td><span class="positive">PASS (99% CI)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>5Y Swap Par Repricing</strong></td>
+                        <td>Bootstrapped SOFR curve</td>
+                        <td>0.052000</td>
+                        <td>0.052000</td>
+                        <td><span class="positive">PASS (&lt;1e-10)</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            Product Control Analytics &bull; Autonomous Quantitative Valuation Engine &bull; Amber Vats &bull; HSBC Application Portfolio
+        </footer>
+    </main>
+</body>
+</html>
